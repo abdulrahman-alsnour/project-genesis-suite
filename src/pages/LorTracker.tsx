@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -62,8 +62,8 @@ export default function LorTracker() {
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.map((req) => (
-              <>
-                <tr key={req.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setExpandedRow(expandedRow === req.id ? null : req.id)}>
+              <React.Fragment key={req.id}>
+                <tr className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => setExpandedRow(expandedRow === req.id ? null : req.id)}>
                   <td className="px-4 py-3">
                     {expandedRow === req.id ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                   </td>
@@ -121,7 +121,7 @@ export default function LorTracker() {
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
