@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Eye, Trash2, Upload } from "lucide-react";
+import { Plus, Eye, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -7,6 +7,11 @@ const auditPlans = [
   { id: 1, name: "2024 - 2026", docsCount: 5 },
   { id: 2, name: "2021 - 2023", docsCount: 3 },
   { id: 3, name: "2018 - 2020", docsCount: 8 },
+];
+
+const mockPlanDocs = [
+  { id: 1, name: "Risk_Assessment_2024.pdf", size: "1.2 MB", date: "Nov 1, 2024" },
+  { id: 2, name: "Scope_Definition.docx", size: "245 KB", date: "Nov 5, 2024" },
 ];
 
 const planDetails = [
@@ -20,6 +25,11 @@ const planDetails = [
 export default function AuditPlans() {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(1);
   const [showAddAudit, setShowAddAudit] = useState(false);
+  const [docsContext, setDocsContext] = useState<{ planId: number; recordId?: number; recordLabel?: string } | null>(null);
+  const [planPage, setPlanPage] = useState(0);
+  const plansPerPage = 2;
+  const sortedPlans = [...auditPlans].sort((a, b) => b.id - a.id);
+  const paginatedPlans = sortedPlans.slice(planPage * plansPerPage, planPage * plansPerPage + plansPerPage);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -61,14 +71,14 @@ export default function AuditPlans() {
           <h2 className="text-base font-semibold text-foreground">Plans List</h2>
         </div>
         <div className="divide-y divide-border">
-          {auditPlans.map((plan) => (
+          {paginatedPlans.map((plan) => (
             <div key={plan.id} className={`px-6 py-4 flex items-center justify-between transition-colors cursor-pointer ${selectedPlan === plan.id ? "bg-primary/5" : "hover:bg-muted/50"}`}>
               <div className="flex items-center gap-4">
                 <span className="text-xs font-mono text-muted-foreground w-6">{plan.id}</span>
                 <span className="text-sm font-medium text-foreground">{plan.name}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={(e) => { e.stopPropagation(); setDocsContext({ planId: plan.id }); }}>
                   <Upload className="w-3 h-3" /> {plan.docsCount} Docs
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedPlan(plan.id)}>
@@ -78,6 +88,15 @@ export default function AuditPlans() {
             </div>
           ))}
         </div>
+        {sortedPlans.length > plansPerPage && (
+          <div className="px-6 py-3 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
+            <span>Page {planPage + 1} of {Math.ceil(sortedPlans.length / plansPerPage)}</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={planPage === 0} onClick={() => setPlanPage((p) => p - 1)}>Previous</Button>
+              <Button variant="outline" size="sm" disabled={planPage >= Math.ceil(sortedPlans.length / plansPerPage) - 1} onClick={() => setPlanPage((p) => p + 1)}>Next</Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Plan Details */}
@@ -88,7 +107,7 @@ export default function AuditPlans() {
               Plan Details — {auditPlans.find(p => p.id === selectedPlan)?.name}
             </h2>
             <Button size="sm" className="gap-1" onClick={() => setShowAddAudit(true)}>
-              <Plus className="w-4 h-4" /> Add Audit
+              <Plus className="w-4 h-4" /> Add Record
             </Button>
           </div>
           <div className="overflow-x-auto">
@@ -101,12 +120,12 @@ export default function AuditPlans() {
                   <th className="px-6 py-3 text-center font-medium text-muted-foreground">2024</th>
                   <th className="px-6 py-3 text-center font-medium text-muted-foreground">2025</th>
                   <th className="px-6 py-3 text-center font-medium text-muted-foreground">2026</th>
-                  <th className="px-6 py-3 text-center font-medium text-muted-foreground">Documents</th>
+                  <th className="px-6 py-3 text-center font-medium text-muted-foreground">Supporting Documents</th>
                   <th className="px-6 py-3 text-center font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {planDetails.map((row) => (
+                {[...planDetails].sort((a, b) => a.department.localeCompare(b.department)).map((row) => (
                   <tr key={row.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-3 font-mono text-muted-foreground">{row.id}</td>
                     <td className="px-6 py-3 font-medium text-foreground">{row.department}</td>
@@ -121,7 +140,7 @@ export default function AuditPlans() {
                       <input type="checkbox" defaultChecked={row.years[2026]} className="rounded border-input" />
                     </td>
                     <td className="px-6 py-3 text-center">
-                      <Button variant="ghost" size="sm" className="text-xs gap-1">
+                      <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setDocsContext({ planId: selectedPlan, recordId: row.id, recordLabel: `${row.department} — ${row.function}` })}>
                         <Upload className="w-3 h-3" /> Library
                       </Button>
                     </td>
@@ -137,6 +156,38 @@ export default function AuditPlans() {
           </div>
         </div>
       )}
+
+      {/* Supporting Documents Library Dialog */}
+      <Dialog open={!!docsContext} onOpenChange={() => setDocsContext(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Supporting Documents {docsContext?.recordLabel ? `— ${docsContext.recordLabel}` : docsContext ? `— Plan ${docsContext.planId}` : ""}
+            </DialogTitle>
+          </DialogHeader>
+          {docsContext && (
+            <div className="space-y-4 py-4">
+              <div className="border border-dashed border-input rounded-lg p-6 text-center text-sm text-muted-foreground">
+                Drag & drop files here or click to upload (Word, Excel, PowerPoint, PDF, PNG, JPG, max 10MB)
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground mb-2">Uploaded documents</p>
+                <ul className="divide-y divide-border rounded-lg border border-border">
+                  {mockPlanDocs.map((doc) => (
+                    <li key={doc.id} className="px-4 py-3 flex items-center justify-between">
+                      <span className="text-sm text-foreground truncate flex-1">{doc.name}</span>
+                      <span className="text-xs text-muted-foreground mx-2">{doc.size}</span>
+                      <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive h-8 w-8 p-0">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Add Audit Dialog */}
       <Dialog open={showAddAudit} onOpenChange={setShowAddAudit}>

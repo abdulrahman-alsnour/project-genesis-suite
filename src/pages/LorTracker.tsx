@@ -5,14 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, MessageSquare, ChevronDown, ChevronRight, Paperclip } from "lucide-react";
 
 const requirements = [
-  { id: 1, requirement: "System access rights for users currently in use", status: "Pending", dateRequested: "November 5, 2025", deadline: "November 20, 2025", type: "General" },
-  { id: 2, requirement: "Previous audit reports for the department", status: "Received", dateRequested: "November 5, 2025", deadline: "November 15, 2025", type: "General" },
-  { id: 3, requirement: "Organizational chart of the department", status: "Partially Received", dateRequested: "November 8, 2025", deadline: "November 22, 2025", type: "General" },
-  { id: 4, requirement: "List of all active vendors and contracts", status: "Received", dateRequested: "November 15, 2025", deadline: "November 25, 2025", type: "General" },
-  { id: 5, requirement: "Risk assessment documentation", status: "N/A", dateRequested: "November 19, 2025", deadline: "December 1, 2025", type: "Additional" },
-  { id: 6, requirement: "Internal policies and procedures manual", status: "Pending", dateRequested: "November 22, 2025", deadline: "December 5, 2025", type: "General" },
-  { id: 7, requirement: "Financial statements for Q1-Q3", status: "Pending", dateRequested: "November 22, 2025", deadline: "December 8, 2025", type: "Additional" },
-  { id: 8, requirement: "IT systems access log for last 6 months", status: "Pending", dateRequested: "November 27, 2025", deadline: "December 10, 2025", type: "Additional" },
+  { id: 1, requirement: "System access rights for users currently in use", status: "Pending", dateRequested: "November 5, 2025", receivedDate: "", deadline: "November 20, 2025", type: "General" },
+  { id: 2, requirement: "Previous audit reports for the department", status: "Received", dateRequested: "November 5, 2025", receivedDate: "November 12, 2025", deadline: "November 15, 2025", type: "General" },
+  { id: 3, requirement: "Organizational chart of the department", status: "Partially Received", dateRequested: "November 8, 2025", receivedDate: "", deadline: "November 22, 2025", type: "General" },
+  { id: 4, requirement: "List of all active vendors and contracts", status: "Received", dateRequested: "November 15, 2025", receivedDate: "November 20, 2025", deadline: "November 25, 2025", type: "General" },
+  { id: 5, requirement: "Risk assessment documentation", status: "N/A", dateRequested: "November 19, 2025", receivedDate: "", deadline: "December 1, 2025", type: "Additional" },
+  { id: 6, requirement: "Internal policies and procedures manual", status: "Rejected", dateRequested: "November 22, 2025", receivedDate: "", deadline: "December 5, 2025", type: "General" },
+  { id: 7, requirement: "Financial statements for Q1-Q3", status: "Pending", dateRequested: "November 22, 2025", receivedDate: "", deadline: "December 8, 2025", type: "Additional" },
+  { id: 8, requirement: "IT systems access log for last 6 months", status: "Pending", dateRequested: "November 27, 2025", receivedDate: "", deadline: "December 10, 2025", type: "Additional" },
 ];
 
 export default function LorTracker() {
@@ -56,8 +56,8 @@ export default function LorTracker() {
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Ref #</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Requirement</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Date Requested</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Deadline</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Request Date</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Deadline Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -78,7 +78,9 @@ export default function LorTracker() {
                     <td colSpan={6} className="px-6 py-4 bg-muted/20">
                       <div className="grid grid-cols-2 gap-6">
                         <div>
-                          <h4 className="text-sm font-semibold text-foreground mb-3">Attachments</h4>
+                          <h4 className="text-sm font-semibold text-foreground mb-2">Request / Deadline</h4>
+                          <p className="text-xs text-muted-foreground">Request Date: {req.dateRequested} · Deadline Date: {req.deadline}{req.receivedDate ? ` · Received Date: ${req.receivedDate}` : ""}</p>
+                          <h4 className="text-sm font-semibold text-foreground mb-3 mt-3">Attachments</h4>
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Paperclip className="w-3.5 h-3.5" />
@@ -116,6 +118,10 @@ export default function LorTracker() {
                               <MessageSquare className="w-3 h-3" /> Send
                             </Button>
                           </div>
+                          <div className="mt-4 pt-3 border-t border-border">
+                            <label className="text-sm font-medium text-foreground">Initial Observations (internal audit only, max 2000 chars)</label>
+                            <textarea rows={2} maxLength={2000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-xs resize-none" placeholder="Document initial observations. Not visible to department." />
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -135,8 +141,15 @@ export default function LorTracker() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Requirement</label>
-              <textarea rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Describe the required document..." />
+              <label className="text-sm font-medium text-foreground">Requirement (search from predefined list or add new)</label>
+              <input type="text" list="req-list" maxLength={200} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" placeholder="Search requirement or type new..." />
+              <datalist id="req-list">
+                <option value="System access rights for users currently in use" />
+                <option value="Previous audit reports for the department" />
+                <option value="Organizational chart of the department" />
+                <option value="List of all active vendors and contracts" />
+                <option value="Internal policies and procedures manual" />
+              </datalist>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -146,6 +159,7 @@ export default function LorTracker() {
                   <option>Received</option>
                   <option>Partially Received</option>
                   <option>N/A</option>
+                  <option>Rejected</option>
                 </select>
               </div>
               <div>

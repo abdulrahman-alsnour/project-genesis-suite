@@ -19,6 +19,11 @@ const statusConfig: Record<string, { className: string }> = {
   "Open": { className: "status-badge status-in-progress" },
   "Closed": { className: "status-badge status-completed" },
   "Overdue": { className: "status-badge status-delayed" },
+  "Rejected": { className: "status-badge status-delayed" },
+  "Incomplete": { className: "status-badge status-delayed" },
+  "Partially Done": { className: "status-badge status-pending" },
+  "Pending Approval": { className: "status-badge status-pending" },
+  "Not due": { className: "status-badge status-not-started" },
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

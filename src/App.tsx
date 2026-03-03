@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import MLP from "./pages/MLP";
 import Committee from "./pages/Committee";
 import AuditUniverse from "./pages/AuditUniverse";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,7 +37,7 @@ const App = () => (
             <Route path="/mlp" element={<MLP />} />
             <Route path="/committee" element={<Committee />} />
             <Route path="/audit-universe" element={<AuditUniverse />} />
-            <Route path="/settings" element={<Dashboard />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>

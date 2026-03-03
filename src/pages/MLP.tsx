@@ -1,31 +1,50 @@
+import { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Eye, FileDown, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const mlpItems = [
-  { id: 1, observation: "Unauthorized access to financial system", category: "Access Control", risk: "High", recommendation: "Implement multi-factor authentication", actionPlan: "IT to deploy MFA by Q1 2026", owner: "IT Department", dueDate: "Mar 30, 2026", status: "Open" },
-  { id: 2, observation: "Outdated backup recovery procedures", category: "Business Continuity", risk: "Medium", recommendation: "Update and test disaster recovery plan", actionPlan: "Quarterly DR testing schedule", owner: "IT Department", dueDate: "Feb 28, 2026", status: "In Progress" },
-  { id: 3, observation: "Missing segregation of duties in AP", category: "Financial Controls", risk: "High", recommendation: "Redesign approval workflow", actionPlan: "Finance to restructure AP process", owner: "Finance", dueDate: "Jan 31, 2026", status: "Open" },
-  { id: 4, observation: "Incomplete vendor onboarding documentation", category: "Procurement", risk: "Low", recommendation: "Create standardized vendor checklist", actionPlan: "Procurement team to develop template", owner: "Operations", dueDate: "Dec 31, 2025", status: "Closed" },
-  { id: 5, observation: "No periodic review of user access rights", category: "Access Control", risk: "Critical", recommendation: "Implement quarterly access reviews", actionPlan: "HR & IT joint quarterly review", owner: "HR / IT", dueDate: "Nov 30, 2025", status: "Overdue" },
+  { id: 1, title: "Unauthorized access to financial system", responsibleAuditor: "Talal Hosni", status: "Open" },
+  { id: 2, title: "Outdated backup recovery procedures", responsibleAuditor: "Manal Rebhi", status: "In Progress" },
+  { id: 3, title: "Missing segregation of duties in AP", responsibleAuditor: "Talal Hosni", status: "Open" },
+  { id: 4, title: "Incomplete vendor onboarding documentation", responsibleAuditor: "Ahmad Jalal", status: "Closed" },
+  { id: 5, title: "No periodic review of user access rights", responsibleAuditor: "Manal Rebhi", status: "Overdue" },
+  { id: 6, title: "Policy manual not updated", responsibleAuditor: "Wajdi Talal", status: "Open" },
 ];
 
-const riskColors: Record<string, string> = {
-  Critical: "bg-destructive/15 text-destructive",
-  High: "bg-warning/15 text-warning",
-  Medium: "bg-info/15 text-info",
-  Low: "bg-muted text-muted-foreground",
-};
+const mockAuditors = ["Talal Hosni", "Manal Rebhi", "Ahmad Jalal", "Wajdi Talal"];
+const ITEMS_PER_PAGE = 3;
 
 export default function MLP() {
+  const [page, setPage] = useState(0);
+  const [selectedMlp, setSelectedMlp] = useState<typeof mlpItems[0] | null>(null);
+  const [backgroundEntries, setBackgroundEntries] = useState<{ id: number; details: string }[]>([{ id: 1, details: "" }]);
+  const [observationEntries, setObservationEntries] = useState<{ id: number; details: string }[]>([{ id: 1, details: "" }]);
+
+  const totalPages = Math.ceil(mlpItems.length / ITEMS_PER_PAGE);
+  const paginatedItems = mlpItems.slice(page * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE + ITEMS_PER_PAGE);
+
+  const addBackgroundEntry = () => setBackgroundEntries((prev) => [...prev, { id: Date.now(), details: "" }]);
+  const addObservationEntry = () => setObservationEntries((prev) => [...prev, { id: Date.now(), details: "" }]);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Management Letter Points</h1>
-          <p className="text-sm text-muted-foreground mt-1">Formal audit findings communicated to management</p>
+          <p className="text-sm text-muted-foreground mt-1">Formal audit findings communicated to management. Export as PDF, approval flow.</p>
         </div>
-        <Button className="gap-2"><Plus className="w-4 h-4" /> Add MLP</Button>
+        <Button className="gap-2" onClick={() => setSelectedMlp({ id: 0, title: "", responsibleAuditor: "", status: "Open" })}>
+          <Plus className="w-4 h-4" /> Add MLP
+        </Button>
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -33,35 +52,109 @@ export default function MLP() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">#</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Observation</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Category</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Risk</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Recommendation</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Owner</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Due</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground">Actions</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground w-12">No.</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Title</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Responsible Auditor</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground w-28">Status</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground w-24">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {mlpItems.map(item => (
+              {paginatedItems.map((item) => (
                 <tr key={item.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-mono text-muted-foreground">{item.id}</td>
-                  <td className="px-4 py-3 text-foreground max-w-[200px] truncate" title={item.observation}>{item.observation}</td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{item.category}</td>
-                  <td className="px-4 py-3"><span className={`status-badge ${riskColors[item.risk]}`}>{item.risk}</span></td>
-                  <td className="px-4 py-3 text-muted-foreground max-w-[200px] truncate text-xs" title={item.recommendation}>{item.recommendation}</td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{item.owner}</td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{item.dueDate}</td>
+                  <td className="px-4 py-3 text-foreground">{item.title}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs">{item.responsibleAuditor}</td>
                   <td className="px-4 py-3"><StatusBadge status={item.status} /></td>
-                  <td className="px-4 py-3 text-center"><Button variant="ghost" size="sm"><Eye className="w-4 h-4" /></Button></td>
+                  <td className="px-4 py-3 text-center">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedMlp(item)}><Eye className="w-4 h-4" /></Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {totalPages > 1 && (
+          <div className="px-6 py-3 border-t border-border flex items-center justify-between text-sm text-muted-foreground">
+            <span>Page {page + 1} of {totalPages}</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous</Button>
+              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage((p) => p + 1)}>Next</Button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* MLP Detail / Edit Dialog */}
+      <Dialog open={!!selectedMlp} onOpenChange={() => setSelectedMlp(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedMlp?.id ? "Edit MLP" : "Add MLP"}</DialogTitle>
+          </DialogHeader>
+          {selectedMlp && (
+            <div className="space-y-4 py-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">Title (required)</label>
+                <input type="text" defaultValue={selectedMlp.title} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" placeholder="MLP title" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Responsible Auditor</label>
+                <Select defaultValue={selectedMlp.responsibleAuditor}>
+                  <SelectTrigger className="w-full mt-1">
+                    <SelectValue placeholder="Select auditor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockAuditors.map((a) => (
+                      <SelectItem key={a} value={a}>{a}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Introduction</label>
+                <textarea rows={3} maxLength={5000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Optional" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Summary of work performed</label>
+                <textarea rows={3} maxLength={5000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Optional" />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-foreground">Operational Background</label>
+                  <Button type="button" variant="ghost" size="sm" className="gap-1 text-xs" onClick={addBackgroundEntry}><Plus className="w-3 h-3" /> Add Background Entry</Button>
+                </div>
+                {backgroundEntries.map((entry) => (
+                  <div key={entry.id} className="flex gap-2 items-start mb-2 p-3 rounded-lg border border-border">
+                    <textarea rows={2} defaultValue={entry.details} className="flex-1 text-sm rounded border border-input px-2 py-1" placeholder="Background details" />
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-foreground">Observations Table</label>
+                  <Button type="button" variant="ghost" size="sm" className="gap-1 text-xs" onClick={addObservationEntry}><Plus className="w-3 h-3" /> Add Observation Entry</Button>
+                </div>
+                {observationEntries.map((entry) => (
+                  <div key={entry.id} className="flex gap-2 items-start mb-2 p-3 rounded-lg border border-border">
+                    <textarea rows={2} defaultValue={entry.details} className="flex-1 text-sm rounded border border-input px-2 py-1" placeholder="Observation details" />
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive shrink-0"><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Notes / Comments</label>
+                <textarea rows={2} maxLength={1000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Add comment (threaded replies; not in exported PDF)" />
+              </div>
+              <div className="flex flex-wrap gap-2 justify-end pt-2">
+                <Button variant="outline" className="gap-1"><FileDown className="w-4 h-4" /> Export as PDF</Button>
+                <Button variant="outline">Check Approval</Button>
+                <Button>Save</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

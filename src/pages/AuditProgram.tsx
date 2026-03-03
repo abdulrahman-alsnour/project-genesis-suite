@@ -62,7 +62,7 @@ function StepRow({ step, depth = 0 }: { step: Step; depth?: number }) {
       ))}
 
       <Dialog open={showToC} onOpenChange={setShowToC}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Test of Controls — Step {step.id}</DialogTitle>
           </DialogHeader>
@@ -72,37 +72,88 @@ function StepRow({ step, depth = 0 }: { step: Step; depth?: number }) {
               <p className="text-sm text-muted-foreground mt-1">{step.name}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Control Objective</label>
-              <textarea rows={2} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" defaultValue="Ensure proper authorization and approval of transactions." />
+              <label className="text-sm font-medium text-foreground">Requirement (mandatory)</label>
+              <select className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm">
+                <option>Search requirement from LoR...</option>
+                <option>System access rights for users</option>
+                <option>Previous audit reports</option>
+                <option>Organizational chart</option>
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Sample Size</label>
-                <input type="number" defaultValue={25} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+                <label className="text-sm font-medium text-foreground">Auditor (required)</label>
+                <select className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm">
+                  <option>Talal Hosni</option>
+                  <option>Manal Rebhi</option>
+                  <option>Ahmad Jalal</option>
+                </select>
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Sampling Methodology</label>
+                <label className="text-sm font-medium text-foreground">Reviewer (required)</label>
                 <select className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm">
-                  <option>Random Sampling</option>
-                  <option>Systematic Sampling</option>
-                  <option>Judgmental Sampling</option>
+                  <option>Manal Rebhi</option>
+                  <option>Talal Hosni</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Test Results</label>
-              <textarea rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" placeholder="Document testing results here..." />
+              <label className="text-sm font-medium text-foreground">Attachments</label>
+              <div className="mt-1 border border-dashed border-input rounded-lg p-3 text-center text-xs text-muted-foreground">Upload supporting documents</div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">Test Start Date (required)</label>
+                <input type="date" className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Review Date</label>
+                <input type="date" className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">Expected Completion Date (required)</label>
+                <input type="date" className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Actual Completion Date</label>
+                <input type="date" className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm" />
+              </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Conclusion</label>
+              <label className="text-sm font-medium text-foreground">Status (required)</label>
               <select className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm">
-                <option>Effective</option>
+                <option>Pending</option>
+                <option>Partially Done</option>
+                <option>Completed</option>
                 <option>Control Failure</option>
-                <option>Partially Effective</option>
-                <option>Not Tested</option>
               </select>
             </div>
-            <Button className="w-full">Save ToC Details</Button>
+            <div>
+              <label className="text-sm font-medium text-foreground">Test Objectives (required)</label>
+              <textarea rows={2} maxLength={2000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Test objectives..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Sampling Methodology Justification (required)</label>
+              <textarea rows={2} maxLength={2000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Sampling methodology..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Test Results (required)</label>
+              <textarea rows={3} maxLength={5000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Document testing results here..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Initial Observations</label>
+              <textarea rows={2} maxLength={2000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Initial observations..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Notes / Comments</label>
+              <textarea rows={2} maxLength={1000} className="w-full mt-1 px-3 py-2 rounded-lg border border-input bg-background text-sm resize-none" placeholder="Add comment (threaded replies)..." />
+            </div>
+            <div className="flex gap-2">
+              <Button className="flex-1">Save ToC Details</Button>
+              <Button variant="outline" className="flex-1">Submit for review</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

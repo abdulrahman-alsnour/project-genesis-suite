@@ -56,7 +56,7 @@ export default function Observations() {
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">ID</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Observation</th>
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Severity</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Significance</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Department</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Due Date</th>
